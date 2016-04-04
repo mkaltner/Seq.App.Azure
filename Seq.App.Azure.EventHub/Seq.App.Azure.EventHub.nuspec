@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Seq.App.Azure.EventHub</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <authors>Michael Kaltner</authors>
     <owners>Michael Kaltner</owners>
     <licenseUrl>https://github.com/mkaltner/Seq.App.Azure/blob/master/LICENSE.md</licenseUrl>
