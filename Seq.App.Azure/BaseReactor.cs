@@ -6,22 +6,34 @@ namespace Seq.App.Azure
 {
     public class BaseReactor : Reactor
     {
-        protected static object GetValue(string value)
+        /// <summary>
+        /// GetValue attempts to transform the event property objects into concrete types prior to serialization.
+        /// This allows consumers of said data to treat serialized data as their actual type instead of a string.
+        /// This may not be required for all properties as it is an object but it depends on configuration, usage and other factors.
+        /// I find it best to just try and parse/translate it myself to cover all scenarios.
+        /// </summary>
+        /// <param name="value">The value to be transformed/parsed.</param>
+        /// <returns>A translated representation of the real object type instead of a string.</returns>
+        protected static object GetValue(object value)
         {
-            var returnValue = value as object;
+            if (!(value is string))
+                return value;
+
+            var str = value.ToString();
+
+            long longBuffer;
+            if (long.TryParse(str, out longBuffer))
+                return longBuffer;
 
             decimal decimalBuffer;
-            int intBuffer;
+            if (decimal.TryParse(str, out decimalBuffer))
+                return decimalBuffer;
+
             DateTime dateBuffer;
+            if (DateTime.TryParse(str, out dateBuffer))
+                return dateBuffer;
 
-            if (value.Contains('.') && decimal.TryParse(value, out decimalBuffer))
-                returnValue = decimalBuffer;
-            else if (int.TryParse(value, out intBuffer))
-                returnValue = intBuffer;
-            else if (DateTime.TryParse(value, out dateBuffer))
-                returnValue = dateBuffer;
-
-            return returnValue;
+            return value;
         }
     }
 }
