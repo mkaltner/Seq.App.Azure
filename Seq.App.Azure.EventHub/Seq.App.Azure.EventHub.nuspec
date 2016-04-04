@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>Seq.App.Azure.EventHub</id>
     <version>1.0.0</version>
-    <authors>Michael Kaltner</authors>
+	<authors>Michael Kaltner</authors>
     <owners>Michael Kaltner</owners>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/mkaltner/Seq.App.EventHub</projectUrl>
