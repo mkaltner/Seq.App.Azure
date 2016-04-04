@@ -6,7 +6,7 @@
     <authors>Michael Kaltner</authors>
     <owners>Michael Kaltner</owners>
     <licenseUrl>https://github.com/mkaltner/Seq.App.Azure/blob/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/mkaltner/Seq.App.EventHub</projectUrl>
+    <projectUrl>https://github.com/mkaltner/Seq.App.Azure</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Azure Event Hub app for Seq (http://getseq.net) pushes data from Seq into an Azure Event Hub.</description>
     <releaseNotes>Initial release.</releaseNotes>
