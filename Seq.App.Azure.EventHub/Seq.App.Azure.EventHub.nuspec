@@ -8,7 +8,7 @@
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/mkaltner/Seq.App.EventHub</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>The Azure Event Hub for Seq (http://getseq.net) pushes data from Seq into an Azure Event Hub.</description>
+    <description>The Azure Event Hub app for Seq (http://getseq.net) pushes data from Seq into an Azure Event Hub.</description>
     <releaseNotes>Initial release.</releaseNotes>
     <copyright>Copyright Michael Kaltner AB 2016</copyright>
     <tags>seq-app seq serilog event azure event hub</tags>
@@ -17,13 +17,13 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Debug\Microsoft.ServiceBus.dll" target="lib\net45" />
-	<file src="bin\Debug\Microsoft.ServiceBus.xml" target="lib\net45" />
-    <file src="bin\Debug\Seq.App.Azure.dll" target="lib\net45" />
-	<file src="bin\Debug\Seq.App.Azure.pdb" target="lib\net45" />
-	<file src="bin\Debug\Seq.App.Azure.EventHub.dll" target="lib\net45" />
-	<file src="bin\Debug\Seq.App.Azure.EventHub.pdb" target="lib\net45" />
-	<file src="bin\Debug\Newtonsoft.Json.dll" target="lib\net45" />
-	<file src="bin\Debug\Newtonsoft.Json.xml" target="lib\net45" />
+    <file src="bin\Release\Microsoft.ServiceBus.dll" target="lib\net45" />
+	<file src="bin\Release\Microsoft.ServiceBus.xml" target="lib\net45" />
+    <file src="bin\Release\Seq.App.Azure.dll" target="lib\net45" />
+	<file src="bin\Release\Seq.App.Azure.pdb" target="lib\net45" />
+	<file src="bin\Release\Seq.App.Azure.EventHub.dll" target="lib\net45" />
+	<file src="bin\Release\Seq.App.Azure.EventHub.pdb" target="lib\net45" />
+	<file src="bin\Release\Newtonsoft.Json.dll" target="lib\net45" />
+	<file src="bin\Release\Newtonsoft.Json.xml" target="lib\net45" />
   </files>
 </package>
