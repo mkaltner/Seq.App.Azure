@@ -51,13 +51,15 @@ Verify that the app is sending events to Azure:
 
 ##5. Power BI
 ###5a. Dataset
+Once Stream Analytics starts sending data to Power BI, the dataset will be automatically created for you as you can see below:
 ![Dataset](docs/images/pbi_dataset.png)
 
 Click on the auto created data set to create a report:
 ![Create Report](docs/images/pbi_create_report.png)
 
-Click the thumbtac to save the report and pin it to your dashboard:
+Click the thumbtack to save the report and pin it to your dashboard:
 ![Pin to Dashboard](docs/images/pbi_pin_to_dashboard.png)
 
 ###5b. Dashboard
+Now you can view your report on the dashboard!
 ![Dashboard](docs/images/pbi_dashboard.png)
