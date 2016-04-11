@@ -23,6 +23,12 @@ namespace Seq.App.Azure.EventHub
             IsOptional = true)]
         public string EventProperties { get; set; }
 
+        [SeqAppSetting(
+            DisplayName = "Static properties",
+            HelpText = "Static properties to include in each Event Hub message.  Format: name1=value,name2=value",
+            IsOptional = true)]
+        public string StaticProperties { get; set; }
+
         private string EventHubName { get; set; }
 
         private static Lazy<EventHubClient> _lazyClient;
@@ -76,6 +82,25 @@ namespace Seq.App.Azure.EventHub
             if (!propertyData.Any())
                 return;
 
+            try
+            {
+                // Parse and add static properties
+                if (!string.IsNullOrEmpty(StaticProperties))
+                {
+                    var props = StaticProperties.Split(',');
+                    foreach (var staticProperty in props)
+                    {
+                        var pair = staticProperty.Split('=');
+                        propertyData[pair[0]] = GetValue(pair[1]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while processing static properties.");
+                throw;
+            }
+            
             // Add a Timestamp to all messages
             propertyData.Add("Timestamp", DateTime.UtcNow);
 
