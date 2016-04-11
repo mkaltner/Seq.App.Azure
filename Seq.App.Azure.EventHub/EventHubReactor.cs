@@ -29,6 +29,12 @@ namespace Seq.App.Azure.EventHub
             IsOptional = true)]
         public string StaticProperties { get; set; }
 
+        [SeqAppSetting(
+            DisplayName = "Log sent messages",
+            HelpText = "If checked, will log sent messages as Information.",
+            IsOptional = true)]
+        public bool LogMessages { get; set; }
+
         private string EventHubName { get; set; }
 
         private static Lazy<EventHubClient> _lazyClient;
@@ -105,6 +111,9 @@ namespace Seq.App.Azure.EventHub
             propertyData.Add("Timestamp", DateTime.UtcNow);
 
             var message = JsonConvert.SerializeObject(propertyData);
+
+            if (LogMessages)
+                Log.Information("Sending {Message} to {EventHubName}", message, EventHubName);
 
             try
             {
