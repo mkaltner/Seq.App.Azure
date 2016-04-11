@@ -81,8 +81,6 @@ namespace Seq.App.Azure.EventHub
 
             var message = JsonConvert.SerializeObject(propertyData);
 
-            Log.Information("Sending {Message} to {EventHubName}", message, EventHubName);
-
             try
             {
                 // Construct and send the event data
