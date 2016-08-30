@@ -2,14 +2,14 @@
 <package>
   <metadata>
     <id>Seq.App.Azure.EventHub</id>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <authors>Michael Kaltner</authors>
     <owners>Michael Kaltner</owners>
     <licenseUrl>https://github.com/mkaltner/Seq.App.Azure/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/mkaltner/Seq.App.Azure</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Azure Event Hub app for Seq (http://getseq.net) pushes data from Seq into an Azure Event Hub.</description>
-    <releaseNotes>1.0.4 - Added option to log sent messages.</releaseNotes>
+    <releaseNotes>1.0.5 - Upgraded to Serilog 2.2.1.</releaseNotes>
     <copyright>(C) Copyright 2016 Michael Kaltner</copyright>
     <tags>seq-app seq serilog event azure event hub</tags>
     <dependencies>
