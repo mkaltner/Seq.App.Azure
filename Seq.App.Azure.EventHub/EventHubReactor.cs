@@ -6,16 +6,21 @@ using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
 using Seq.Apps;
 using Seq.Apps.LogEvents;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
 
 namespace Seq.App.Azure.EventHub
 {
     [SeqApp("Azure Event Hub", Description = "Send Seq event properties to an Azure Event Hub.")]
     public class AzureEventHubReactor : BaseReactor, ISubscribeTo<LogEventData>
     {
-        private string eventProperties;
-        private string staticProperties;
-        private HashSet<string> splitEventProperties;
-        private Dictionary<string, string> splitStaticProperties;
+        private string _eventProperties;
+        private string _staticProperties;
+        private string _tagProperties;
+        private Subject<EventData> _messagesToBeSent;
+        private HashSet<string> _splitEventProperties;
+        private HashSet<string> _splitTagProperties;
+        private Dictionary<string, string> _splitStaticProperties;
 
         [SeqAppSetting(
             DisplayName = "Connection string",
@@ -28,18 +33,19 @@ namespace Seq.App.Azure.EventHub
             IsOptional = true)]
         public string EventProperties
         {
-            get { return this.eventProperties; }
+            get { return _eventProperties; }
             set
             {
-                this.eventProperties = value;
+                _eventProperties = value;
 
-                if (string.IsNullOrEmpty(this.eventProperties))
-                    this.splitEventProperties = null;
+                if (string.IsNullOrEmpty(_eventProperties))
+                    _splitEventProperties = null;
                 else
                 {
-                    string[] parts = this.eventProperties.Split(',');
+                    _splitEventProperties = new HashSet<string>();
+                    string[] parts = _eventProperties.Split(',');
                     foreach (string part in parts)
-                        this.splitEventProperties.Add(part.Trim());
+                        _splitEventProperties.Add(part.Trim());
                 }
             }
         }
@@ -50,16 +56,16 @@ namespace Seq.App.Azure.EventHub
             IsOptional = true)]
         public string StaticProperties
         {
-            get { return this.staticProperties; }
+            get { return _staticProperties; }
             set
             {
-                this.staticProperties = value;
+                _staticProperties = value;
 
-                string[] parts = (this.staticProperties ?? string.Empty).Split(',');
+                string[] parts = (_staticProperties ?? string.Empty).Split(',');
                 foreach (string part in parts)
                 {
                     string[] pair = part.Split('=');
-                    this.splitStaticProperties.Add(pair[0].Trim(), pair[1].Trim());
+                    _splitStaticProperties.Add(pair[0].Trim(), pair[1].Trim());
                 }
             }
         }
@@ -70,7 +76,22 @@ namespace Seq.App.Azure.EventHub
             IsOptional = true)]
         public bool LogMessages { get; set; }
 
-        private string EventHubName { get; set; }
+        [SeqAppSetting(
+            DisplayName = "Tag properties",
+            HelpText = "Tag property name(s) (comma seperated for multiple). These are added to messages that are sent, but if an event only has the tag properties (and none of the event ones) then nothing will be sent.",
+            IsOptional = true)]
+        public string TagProperties
+        {
+            get { return _tagProperties; }
+            set
+            {
+                _tagProperties = value;
+
+                string[] parts = (_tagProperties ?? string.Empty).Split(',');
+                foreach (string part in parts)
+                    _splitTagProperties.Add(part.Trim());
+            }
+        }
 
         private static Lazy<EventHubClient> _lazyClient;
 
@@ -81,7 +102,8 @@ namespace Seq.App.Azure.EventHub
 
         public AzureEventHubReactor()
         {
-            this.splitStaticProperties = new Dictionary<string, string>();
+            _splitStaticProperties = new Dictionary<string, string>();
+            _splitTagProperties = new HashSet<string>();
 
             _lazyClient =
                 new Lazy<EventHubClient>(() =>
@@ -91,26 +113,47 @@ namespace Seq.App.Azure.EventHub
                     try
                     {
                         client = EventHubClient.CreateFromConnectionString(ConnectionString);
-                        EventHubName = client.Path;
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(ex, "Error connecting to Event hub.");
+                        Log.Error(ex, "Error connecting to Event hub");
                         throw;
                     }
 
                     return client;
                 });
+
+            _messagesToBeSent = new Subject<EventData>();
+
+            _messagesToBeSent
+                .Buffer(TimeSpan.FromSeconds(3), 100)
+                .Subscribe(async eventData =>
+                    {
+                        if (eventData.Any())
+                        {
+                            try
+                            {
+                                if (LogMessages)
+                                    Log.Information("Sending {MessageCount} message(s)", eventData.Count);
+
+                                await Client.SendBatchAsync(eventData);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error(ex, "Failed to send message to event hub - {Message}.", ex.Message);
+                            }
+                        }
+                    });
         }
 
         public void On(Event<LogEventData> evt)
         {
             Dictionary<string, object> propertyData;
 
-            if (this.splitEventProperties != null)
+            if (_splitEventProperties != null)
             {
                 // If EventProperties are defined, grab matching event properties.
-                propertyData = evt.Data.Properties.Where(x => this.splitEventProperties.Contains(x.Key))
+                propertyData = evt.Data.Properties.Where(x => _splitEventProperties.Contains(x.Key))
                     .ToDictionary(x => x.Key, x => GetValue(x.Value));
             }
             else
@@ -124,12 +167,16 @@ namespace Seq.App.Azure.EventHub
             if (!propertyData.Any())
                 return;
 
+            // Get tag properties
+            foreach (var tagProp in evt.Data.Properties.Where(x => _splitTagProperties.Contains(x.Key)))
+                propertyData[tagProp.Key] = GetValue(tagProp.Value);
+
             try
             {
                 // Parse and add static properties
-                if (this.splitStaticProperties != null)
+                if (_splitStaticProperties != null)
                 {
-                    foreach (var kvp in this.splitStaticProperties)
+                    foreach (var kvp in _splitStaticProperties)
                         propertyData[kvp.Key] = GetValue(kvp.Value);
                 }
             }
@@ -145,19 +192,11 @@ namespace Seq.App.Azure.EventHub
             var message = JsonConvert.SerializeObject(propertyData);
 
             if (LogMessages)
-                Log.Information("Sending {Message} to {EventHubName}", message, EventHubName);
+                Log.Information("Queuing {Message}", message);
 
-            try
-            {
-                // Construct and send the event data
-                var eventData = new EventData(Encoding.UTF8.GetBytes(message));
-                Client.Send(eventData);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to send message to event hub - {Message}.", ex.Message);
-                throw;
-            }
+            // Construct and send the event data
+            var eventData = new EventData(Encoding.UTF8.GetBytes(message));
+            _messagesToBeSent.OnNext(eventData);
         }
     }
 }

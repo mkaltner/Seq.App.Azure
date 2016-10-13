@@ -2,14 +2,15 @@
 <package>
   <metadata>
     <id>Seq.App.Azure.EventHub</id>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <authors>Michael Kaltner</authors>
     <owners>Michael Kaltner</owners>
     <licenseUrl>https://github.com/mkaltner/Seq.App.Azure/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/mkaltner/Seq.App.Azure</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Azure Event Hub app for Seq (http://getseq.net) pushes data from Seq into an Azure Event Hub.</description>
-    <releaseNotes>1.0.6 - Performance optimizations
+    <releaseNotes>1.0.7 - Added batching of messages and tag properties
+	1.0.6 - Performance optimizations
 	1.0.5 - Upgraded to Serilog 2.2.1.</releaseNotes>
     <copyright>(C) Copyright 2016 Michael Kaltner</copyright>
     <tags>seq-app seq serilog event azure event hub</tags>
@@ -24,5 +25,10 @@
 	<file src="bin\Release\Seq.App.Azure.pdb" target="lib\net45" />
 	<file src="bin\Release\Seq.App.Azure.EventHub.dll" target="lib\net45" />
 	<file src="bin\Release\Seq.App.Azure.EventHub.pdb" target="lib\net45" />
+	<file src="bin\Release\System.Reactive.Core.dll" target="lib\net45" />
+	<file src="bin\Release\System.Reactive.Interfaces.dll" target="lib\net45" />
+	<file src="bin\Release\System.Reactive.Linq.dll" target="lib\net45" />
+	<file src="bin\Release\System.Reactive.PlatformServices.dll" target="lib\net45" />
+	<file src="bin\Release\System.Reactive.Windows.Threading.dll" target="lib\net45" />
   </files>
 </package>
