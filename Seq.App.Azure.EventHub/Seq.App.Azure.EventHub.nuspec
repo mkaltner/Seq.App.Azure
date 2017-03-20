@@ -2,14 +2,16 @@
 <package>
   <metadata>
     <id>Seq.App.Azure.EventHub</id>
-    <version>1.0.9</version>
+    <version>1.0.11</version>
     <authors>Michael Kaltner</authors>
     <owners>Michael Kaltner</owners>
     <licenseUrl>https://github.com/mkaltner/Seq.App.Azure/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/mkaltner/Seq.App.Azure</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Azure Event Hub app for Seq (http://getseq.net) pushes data from Seq into an Azure Event Hub.</description>
-    <releaseNotes>1.0.9 - Added a way to force the data type for properties
+    <releaseNotes>1.0.11 - Force tags to be tags
+	1.0.10 - Allow exclude/ignore properties from the data type specification
+	1.0.9 - Added a way to force the data type for properties
 	1.0.8 - Added trigger processing and updated dependencies
 	1.0.7 - Added batching of messages and tag properties
 	1.0.6 - Performance optimizations

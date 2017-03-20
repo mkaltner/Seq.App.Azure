@@ -277,7 +277,7 @@ namespace Seq.App.Azure.EventHub
                     if (_splitStaticProperties != null)
                     {
                         foreach (var kvp in _splitStaticProperties)
-                            propertyData[kvp.Key] = GetValue(kvp.Value);
+                            propertyData[kvp.Key] = GetValue(kvp.Value) + "$:tag";
                     }
                 }
                 catch (Exception ex)
@@ -296,8 +296,12 @@ namespace Seq.App.Azure.EventHub
                     foreach (var propInfo in propertyData)
                     {
                         string forcedDataType;
-                        if (_splitPropertyDataTypes.TryGetValue(propInfo.Key, out forcedDataType))
+                        if (!propInfo.Key.Contains("$:") && _splitPropertyDataTypes.TryGetValue(propInfo.Key, out forcedDataType))
                         {
+                            if (forcedDataType.Equals("exclude", StringComparison.OrdinalIgnoreCase) ||
+                                forcedDataType.Equals("ignore", StringComparison.OrdinalIgnoreCase))
+                                continue;
+
                             outData.Add(propInfo.Key + "$:" + forcedDataType, propInfo.Value);
                         }
                         else
