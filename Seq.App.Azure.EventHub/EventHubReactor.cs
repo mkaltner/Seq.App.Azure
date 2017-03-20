@@ -18,15 +18,21 @@ namespace Seq.App.Azure.EventHub
         private string _staticProperties;
         private string _tagProperties;
         private string _triggerProperties;
+        private string _propertyDataTypes;
+        private string _eventTypes;
         private Subject<EventData> _messagesToBeSent;
         private HashSet<string> _splitEventProperties;
         private HashSet<string> _splitTagProperties;
         private HashSet<string> _splitTriggerProperties;
         private Dictionary<string, string> _splitStaticProperties;
+        private Dictionary<string, string> _splitPropertyDataTypes;
+        private HashSet<uint> _splitEventTypes;
 
         [SeqAppSetting(
             DisplayName = "Connection string",
-            HelpText = "Event hub connection string (must include the EntityPath).")]
+            HelpText = "Event hub connection string (must include the EntityPath).",
+            IsOptional = false,
+            InputType = SettingInputType.LongText)]
         public string ConnectionString { get; set; }
 
         [SeqAppSetting(
@@ -117,6 +123,55 @@ namespace Seq.App.Azure.EventHub
             }
         }
 
+        [SeqAppSetting(
+            DisplayName = "Property Data Types",
+            HelpText = "This allows you to specify a forced data type per property name (comma-separated). Example: ErrorCode:string, TeeTimeTypeId:int",
+            IsOptional = true,
+            InputType = SettingInputType.LongText)]
+        public string PropertyDataTypes
+        {
+            get { return _propertyDataTypes; }
+            set
+            {
+                _propertyDataTypes = value;
+
+                _splitPropertyDataTypes = new Dictionary<string, string>();
+
+                string[] parts = (_propertyDataTypes ?? string.Empty).Split(',');
+                foreach (string part in parts)
+                {
+                    string[] subParts = part.Split(':');
+                    if (subParts.Length == 2)
+                        _splitPropertyDataTypes.Add(subParts[0].Trim(), subParts[1].Trim());
+                }
+            }
+        }
+
+        [SeqAppSetting(
+            DisplayName = "Event Types",
+            HelpText = "This allows you to specify the event types that should be sent to event hub.",
+            IsOptional = true,
+            InputType = SettingInputType.LongText)]
+        public string EventTypes
+        {
+            get { return _eventTypes; }
+            set
+            {
+                _eventTypes = value;
+
+                _splitEventTypes = new HashSet<uint>();
+
+                string[] parts = (_eventTypes ?? string.Empty).Split(',');
+                foreach (string part in parts)
+                {
+                    string eventTypeId = part.Trim();
+                    if (eventTypeId.StartsWith("$"))
+                        eventTypeId = eventTypeId.Substring(1);
+                    _splitEventTypes.Add(uint.Parse(eventTypeId, System.Globalization.NumberStyles.HexNumber));
+                }
+            }
+        }
+
         private static Lazy<EventHubClient> _lazyClient;
 
         private static EventHubClient Client
@@ -183,14 +238,21 @@ namespace Seq.App.Azure.EventHub
                 }
                 else
                 {
-                    // If no EventProperties, get all properties for this event.
+                    // If no EventProperties, and no even types, then get all properties for this event.
                     // Hopefully the user specified a signal to match because this can/will send everything!
-                    includeAllProperties = true;
+                    if (_splitEventTypes == null || !_splitEventTypes.Any())
+                        includeAllProperties = true;
                 }
 
                 if (_splitTriggerProperties != null)
                 {
                     includeAllProperties = evt.Data.Properties.Any(x => _splitTriggerProperties.Contains(x.Key));
+                }
+
+                if (_splitEventTypes != null)
+                {
+                    if (_splitEventTypes.Contains(evt.EventType))
+                        includeAllProperties = true;
                 }
 
                 if (includeAllProperties)
@@ -207,7 +269,6 @@ namespace Seq.App.Azure.EventHub
                     // Get tag properties
                     foreach (var tagProp in evt.Data.Properties.Where(x => _splitTagProperties.Contains(x.Key)))
                         propertyData[tagProp.Key] = GetValue(tagProp.Value);
-
                 }
 
                 try
@@ -227,6 +288,23 @@ namespace Seq.App.Azure.EventHub
 
                 // Add a Timestamp to all messages
                 propertyData.Add("Timestamp", evt.TimestampUtc);
+
+                if (_splitPropertyDataTypes != null)
+                {
+                    // Add special suffix to indicate we have a forced data type
+                    var outData = new Dictionary<string, object>();
+                    foreach (var propInfo in propertyData)
+                    {
+                        string forcedDataType;
+                        if (_splitPropertyDataTypes.TryGetValue(propInfo.Key, out forcedDataType))
+                        {
+                            outData.Add(propInfo.Key + "$:" + forcedDataType, propInfo.Value);
+                        }
+                        else
+                            outData.Add(propInfo.Key, propInfo.Value);
+                    }
+                    propertyData = outData;
+                }
 
                 var message = JsonConvert.SerializeObject(propertyData);
 
