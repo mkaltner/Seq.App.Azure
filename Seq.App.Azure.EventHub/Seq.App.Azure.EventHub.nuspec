@@ -2,14 +2,15 @@
 <package>
   <metadata>
     <id>Seq.App.Azure.EventHub</id>
-    <version>1.0.14</version>
+    <version>1.0.15</version>
     <authors>Michael Kaltner</authors>
     <owners>Michael Kaltner</owners>
     <licenseUrl>https://github.com/mkaltner/Seq.App.Azure/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/mkaltner/Seq.App.Azure</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The Azure Event Hub app for Seq (http://getseq.net) pushes data from Seq into an Azure Event Hub.</description>
-    <releaseNotes>1.0.14 - Remove fields that are configured as tags
+    <releaseNotes>1.0.15 - Remove field that has the same name as a static property
+	1.0.14 - Remove fields that are configured as tags
 	1.0.13 - Fixed another issue with tags
 	1.0.12 - Fixed issue with tags
 	1.0.11 - Force tags to be tags

@@ -280,7 +280,10 @@ namespace Seq.App.Azure.EventHub
                     if (_splitStaticProperties != null)
                     {
                         foreach (var kvp in _splitStaticProperties)
+                        {
+                            propertyData.Remove(kvp.Key);
                             propertyData[kvp.Key + "$:tag"] = GetValue(kvp.Value);
+                        }
                     }
                 }
                 catch (Exception ex)
