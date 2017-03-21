@@ -268,7 +268,10 @@ namespace Seq.App.Azure.EventHub
                 {
                     // Get tag properties
                     foreach (var tagProp in evt.Data.Properties.Where(x => _splitTagProperties.Contains(x.Key)))
-                        propertyData[tagProp.Key] = GetValue(tagProp.Value);
+                    {
+                        propertyData.Remove(tagProp.Key);
+                        propertyData[tagProp.Key + "$:tag"] = GetValue(tagProp.Value);
+                    }
                 }
 
                 try
@@ -277,7 +280,7 @@ namespace Seq.App.Azure.EventHub
                     if (_splitStaticProperties != null)
                     {
                         foreach (var kvp in _splitStaticProperties)
-                            propertyData[kvp.Key] = GetValue(kvp.Value) + "$:tag";
+                            propertyData[kvp.Key + "$:tag"] = GetValue(kvp.Value);
                     }
                 }
                 catch (Exception ex)
