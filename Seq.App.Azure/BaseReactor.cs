@@ -4,7 +4,7 @@ using Seq.Apps;
 
 namespace Seq.App.Azure
 {
-    public class BaseReactor : Reactor
+    public class BaseReactor : SeqApp
     {
         /// <summary>
         /// GetValue attempts to transform the event property objects into concrete types prior to serialization.

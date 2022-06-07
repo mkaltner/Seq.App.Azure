@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
 using Seq.Apps;
 using Seq.Apps.LogEvents;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using Azure.Messaging.EventHubs;
+using Azure.Messaging.EventHubs.Producer;
 
 namespace Seq.App.Azure.EventHub
 {
@@ -172,9 +173,9 @@ namespace Seq.App.Azure.EventHub
             }
         }
 
-        private static Lazy<EventHubClient> _lazyClient;
+        private static Lazy<EventHubProducerClient> _lazyClient;
 
-        private static EventHubClient Client
+        private static EventHubProducerClient Client
         {
             get { return _lazyClient.Value; }
         }
@@ -182,13 +183,13 @@ namespace Seq.App.Azure.EventHub
         public AzureEventHubReactor()
         {
             _lazyClient =
-                new Lazy<EventHubClient>(() =>
+                new Lazy<EventHubProducerClient>(() =>
                 {
-                    EventHubClient client;
+                    EventHubProducerClient client;
 
                     try
                     {
-                        client = EventHubClient.CreateFromConnectionString(ConnectionString);
+                        client = new EventHubProducerClient(ConnectionString);
                     }
                     catch (Exception ex)
                     {
@@ -212,7 +213,7 @@ namespace Seq.App.Azure.EventHub
                                 if (LogMessages)
                                     Log.Information("Sending {MessageCount} message(s)", eventData.Count);
 
-                                await Client.SendBatchAsync(eventData);
+                                await Client.SendAsync(eventData);
                             }
                             catch (Exception ex)
                             {
