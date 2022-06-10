@@ -173,6 +173,20 @@ namespace Seq.App.Azure.EventHub
             }
         }
 
+        [SeqAppSetting(
+            DisplayName = "Insert rendered message",
+            HelpText = "If checked, will insert rendered message on output",
+            IsOptional = true)]
+
+        public bool InsertRenderedMessage { get; set; }
+
+        [SeqAppSetting(
+            DisplayName = "Insert message template",
+            HelpText = "If checked, will insert message template on output",
+            IsOptional = true)]
+
+        public bool InsertMessageTemplate { get; set; }
+
         private static Lazy<EventHubProducerClient> _lazyClient;
 
         private static EventHubProducerClient Client
@@ -296,6 +310,12 @@ namespace Seq.App.Azure.EventHub
                 // Add a Timestamp to all messages
                 propertyData.Add("Timestamp", evt.TimestampUtc);
 
+                // Add the Event type to all messages
+                propertyData.Add("EventType", evt.EventType);
+
+                // Add the Level to all messages
+                propertyData.Add("Level", evt.Data.Level);
+
                 if (_splitPropertyDataTypes != null)
                 {
                     // Add special suffix to indicate we have a forced data type
@@ -316,6 +336,12 @@ namespace Seq.App.Azure.EventHub
                     }
                     propertyData = outData;
                 }
+
+                if (InsertRenderedMessage)
+                    propertyData.Add("RenderedMessage", evt.Data.RenderedMessage);
+
+                if (InsertMessageTemplate)
+                    propertyData.Add("MessageTemplate", evt.Data.MessageTemplate);
 
                 var message = JsonConvert.SerializeObject(propertyData);
 
