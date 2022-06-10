@@ -313,6 +313,9 @@ namespace Seq.App.Azure.EventHub
                 // Add the Event type to all messages
                 propertyData.Add("EventType", evt.EventType);
 
+                // Add the Level to all messages
+                propertyData.Add("Level", evt.Data.Level);
+
                 if (_splitPropertyDataTypes != null)
                 {
                     // Add special suffix to indicate we have a forced data type
