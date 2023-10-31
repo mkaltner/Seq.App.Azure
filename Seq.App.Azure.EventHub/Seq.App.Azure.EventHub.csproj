@@ -5,6 +5,7 @@
     <Copyright>(C) Copyright 2016 Michael Kaltner</Copyright>
     <PackageTags>seq-app;seq;serilog;event azure;event hub</PackageTags>
     <PackageReleaseNotes>
+	  1.1.2 - Fix for duplicate property names
       1.1.0 - Upgrade to .NET 5
       1.0.15 - Remove field that has the same name as a static property
       1.0.14 - Remove fields that are configured as tags
@@ -23,7 +24,7 @@
     <Version>$(VersionPrefix)</Version>
     <PackageProjectUrl>https://github.com/mkaltner/Seq.App.Azure</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <VersionPrefix>1.1.1</VersionPrefix>
+    <VersionPrefix>1.1.2</VersionPrefix>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
