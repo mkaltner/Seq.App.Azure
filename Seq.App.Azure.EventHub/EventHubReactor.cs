@@ -308,13 +308,13 @@ namespace Seq.App.Azure.EventHub
                 }
 
                 // Add a Timestamp to all messages
-                propertyData.Add("Timestamp", evt.TimestampUtc);
+                propertyData["Timestamp"] = evt.TimestampUtc;
 
                 // Add the Event type to all messages
-                propertyData.Add("EventType", evt.EventType);
+                propertyData["EventType"] = evt.EventType;
 
                 // Add the Level to all messages
-                propertyData.Add("Level", evt.Data.Level);
+                propertyData["Level"] = evt.Data.Level;
 
                 if (_splitPropertyDataTypes != null)
                 {
@@ -338,10 +338,10 @@ namespace Seq.App.Azure.EventHub
                 }
 
                 if (InsertRenderedMessage)
-                    propertyData.Add("RenderedMessage", evt.Data.RenderedMessage);
+                    propertyData["RenderedMessage"] = evt.Data.RenderedMessage;
 
                 if (InsertMessageTemplate)
-                    propertyData.Add("MessageTemplate", evt.Data.MessageTemplate);
+                    propertyData["MessageTemplate"] = evt.Data.MessageTemplate;
 
                 var message = JsonConvert.SerializeObject(propertyData);
 
